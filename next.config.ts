@@ -1,22 +1,23 @@
 import process from "process";
+import type { NextConfig } from "next";
 
-const nextConfig = () => {
+const nextConfig = (): NextConfig => {
   const buildMode = process.env.BUILD_MODE;
+  const basePath = process.env.BASE_PATH || "";
+
+  const config: NextConfig = {
+    basePath,
+  };
 
   if (buildMode === "static") {
-    return {
-      output: "export",
-      basePath: process.env.PAGES_BASE_PATH,
-      assetPrefix: process.env.PAGES_BASE_PATH,
-    };
+    config.output = "export";
   }
 
   if (buildMode === "standalone") {
-    return {
-      output: "standalone",
-    };
+    config.output = "standalone";
   }
-  return {};
+
+  return config;
 };
 
-export default nextConfig;
+export default nextConfig();
