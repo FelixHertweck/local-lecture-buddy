@@ -68,6 +68,8 @@ jobs:
 
       - name: Build static
         run: npm run build:static
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}
 
       - name: Upload build static artifact for github pages
         uses: actions/upload-pages-artifact@v3
