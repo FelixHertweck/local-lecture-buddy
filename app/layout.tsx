@@ -19,6 +19,28 @@ export const metadata: Metadata = {
   title: "Lecture Buddy - Local AI Assistant",
   description:
     "Your AI-powered lecture assistant runs completely locally in the browser.",
+  authors: [
+    { name: "Felix Hertweck", url: "https://github.com/FelixHertweck" },
+  ],
+  creator: "Felix Hertweck",
+  icons: {
+    icon: [
+      { url: "favicon.ico", sizes: "any" },
+      { url: "favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [
+      { url: "apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  manifest: "site.webmanifest",
+  other: {
+    "theme-color": "#ffffff",
+    "color-scheme": "light dark",
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "default",
+  },
 };
 
 export default function RootLayout({
