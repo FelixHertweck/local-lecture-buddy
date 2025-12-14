@@ -20,4 +20,4 @@ const nextConfig = (): NextConfig => {
   return config;
 };
 
-export default nextConfig;
+export default nextConfig();
