@@ -461,8 +461,12 @@ export function APITranslator() {
           {!translatorAvailable && (
             <div className="mt-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg">
               <p className="text-red-800 dark:text-red-200 text-sm font-medium">
-                Translator API is not supported in this browser. Please use
-                Chrome 138 or later.
+                Translator is currently not supported in this browser.
+                <br />
+                Currently AI Translator is only supported in Chromium-based
+                browsers.
+                <br />
+                Try to use the latest version of Chrome.
               </p>
             </div>
           )}

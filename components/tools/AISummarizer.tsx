@@ -320,8 +320,12 @@ export function AISummarizer() {
           {availability === "unavailable" && (
             <div className="mt-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg">
               <p className="text-red-800 dark:text-red-200 text-sm font-medium">
-                Summarizer is not supported in this browser. Please use Chrome
-                128 or later.
+                Summarizer is currently not supported in this browser.
+                <br />
+                Currently AI Summarizer is only supported in Chromium-based
+                browsers.
+                <br />
+                Try to use the latest version of Chrome.
               </p>
             </div>
           )}
