@@ -1,0 +1,21 @@
+version: "3.8"
+services:
+  local-lecture-buddy:
+    image: ghcr.io/felixhertweck/local-lecture-buddy:main # use specific tag or lastest for latest release
+    ports:
+      - "3000:3000"
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://0.0.0.0:3000",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 5s

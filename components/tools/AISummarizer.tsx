@@ -1,0 +1,280 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { Copy, Download } from "lucide-react";
+import { useWorkflow } from "@/lib/contexts/WorkflowContext";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
+import { checkSummarizerAvailability } from "@/lib/ai-helpers";
+import type { SummaryType, SummaryFormat, SummaryLength } from "@/lib/types";
+import { MarkdownRenderer } from "@/components/custom-ui/MarkdownRenderer";
+
+function LoadingAnimation() {
+  return (
+    <div className="flex flex-col items-center justify-center py-8 gap-4">
+      <div className="flex items-center gap-2">
+        <div className="flex gap-1">
+          <div
+            className="w-2 h-2 bg-primary rounded-full animate-bounce"
+            style={{ animationDelay: "0s" }}
+          />
+          <div
+            className="w-2 h-2 bg-primary rounded-full animate-bounce"
+            style={{ animationDelay: "0.2s" }}
+          />
+          <div
+            className="w-2 h-2 bg-primary rounded-full animate-bounce"
+            style={{ animationDelay: "0.4s" }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function AISummarizer() {
+  const { state, actions } = useWorkflow();
+  const [summary, setSummary] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [type, setType] = useState<SummaryType>("key-points");
+  const [format, setFormat] = useState<SummaryFormat>("markdown");
+  const [length, setLength] = useState<SummaryLength>("medium");
+
+  const [availability, setAvailability] = useState<Availability>("unavailable");
+  const summarizerRef = useRef<{
+    summarizer: Summarizer;
+    type: SummaryType;
+    format: SummaryFormat;
+    length: SummaryLength;
+  } | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const r = await checkSummarizerAvailability();
+      setAvailability(r.availability as Availability);
+    })();
+    const interval = setInterval(async () => {
+      const r = await checkSummarizerAvailability();
+      setAvailability(r.availability as Availability);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const initializeSummarizer = async (): Promise<Summarizer> => {
+    if (typeof Summarizer === "undefined") {
+      throw new Error("Summarizer not available");
+    }
+
+    try {
+      // Check if we already have a summarizer with the same parameters
+      // If parameters changed, create a new one
+      if (
+        summarizerRef.current &&
+        summarizerRef.current.type === type &&
+        summarizerRef.current.format === format &&
+        summarizerRef.current.length === length
+      ) {
+        return summarizerRef.current.summarizer;
+      }
+
+      // Create a new summarizer with current parameters
+      // (parameters can't be changed after creation)
+      const summarizer = await Summarizer.create({
+        type,
+        format,
+        length,
+      });
+
+      summarizerRef.current = {
+        summarizer,
+        type,
+        format,
+        length,
+      };
+
+      return summarizer;
+    } catch (error) {
+      toast.error("Failed to initialize summarizer");
+      throw error;
+    }
+  };
+
+  const handleSummarize = async () => {
+    if (!state.optimizedData?.processedText) {
+      toast.error("No text to summarize");
+      return;
+    }
+
+    if (availability !== "available") {
+      toast.error("Summarizer is not available");
+      return;
+    }
+
+    setIsLoading(true);
+    setSummary("");
+
+    try {
+      const summarizer = await initializeSummarizer();
+      const stream = await summarizer.summarizeStreaming(
+        state.optimizedData.processedText,
+      );
+
+      const reader = stream.getReader();
+      let result = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        result += value;
+        setSummary(result);
+      }
+
+      // Mark tools as having changes
+      actions.setToolsChanges(true);
+      toast.success("Summary generated");
+    } catch (error) {
+      toast.error("Summarization failed");
+      console.error("Summarization error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(summary);
+    toast.success("Copied to clipboard");
+  };
+
+  const handleDownload = () => {
+    const blob = new Blob([summary], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "summary.txt";
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Downloaded");
+  };
+
+  return (
+    <div className="h-full flex flex-col p-6">
+      {/* Settings Row */}
+      <div className="shrink-0 grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div>
+          <Label className="pb-2">Type</Label>
+          <Select
+            value={type}
+            onValueChange={(v) => setType(v as SummaryType)}
+            disabled={isLoading}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="key-points">Key Points</SelectItem>
+              <SelectItem value="tldr">TL;DR</SelectItem>
+              <SelectItem value="teaser">Teaser</SelectItem>
+              <SelectItem value="headline">Headline</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label className="pb-2">Length</Label>
+          <Select
+            value={length}
+            onValueChange={(v) => setLength(v as SummaryLength)}
+            disabled={isLoading}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="short">Short</SelectItem>
+              <SelectItem value="medium">Medium</SelectItem>
+              <SelectItem value="long">Long</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label className="pb-2">Format</Label>
+          <Select
+            value={format}
+            onValueChange={(v) => setFormat(v as SummaryFormat)}
+            disabled={isLoading}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="markdown">Markdown</SelectItem>
+              <SelectItem value="plain-text">Plain Text</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Action Button */}
+      <Button
+        onClick={handleSummarize}
+        disabled={
+          isLoading ||
+          availability !== "available" ||
+          !state.optimizedData?.processedText
+        }
+        className="shrink-0 mb-4"
+        title={
+          availability === "unavailable"
+            ? "Summarizer API is not available in this browser"
+            : availability === "downloadable"
+              ? "Summarizer model needs to be downloaded"
+              : !state.optimizedData?.processedText
+                ? "No text to summarize"
+                : undefined
+        }
+      >
+        {isLoading ? "Summarizing..." : "Summarize"}
+      </Button>
+
+      {/* Output Area (Scrollable) */}
+      <div className="flex-1 min-h-0">
+        <ScrollArea className="h-full p-4 border rounded-md">
+          {summary ? (
+            <MarkdownRenderer content={summary} />
+          ) : isLoading ? (
+            <LoadingAnimation />
+          ) : (
+            <div className="text-center text-muted-foreground py-8">
+              <p>Click &apos;Summarize&apos; to begin</p>
+            </div>
+          )}
+        </ScrollArea>
+      </div>
+
+      {/* Export Buttons */}
+      {summary && !isLoading && (
+        <div className="shrink-0 flex gap-2 mt-4">
+          <Button variant="outline" onClick={handleCopy}>
+            <Copy className="w-4 h-4 mr-2" />
+            Copy
+          </Button>
+          <Button variant="outline" onClick={handleDownload}>
+            <Download className="w-4 h-4 mr-2" />
+            Download
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
