@@ -29,6 +29,7 @@ interface WorkflowContextType {
     setImageInputSource: (source: "upload" | "camera" | null) => void;
     setToolsChanges: (hasChanges: boolean) => void;
     setDontShowToolsWarning: (dontShow: boolean) => void;
+    clearInput: () => void;
     reset: () => void;
   };
 }
@@ -48,6 +49,7 @@ type WorkflowAction =
   | { type: "SET_IMAGE_INPUT_SOURCE"; payload: "upload" | "camera" | null }
   | { type: "SET_TOOLS_CHANGES"; payload: boolean }
   | { type: "SET_DONT_SHOW_TOOLS_WARNING"; payload: boolean }
+  | { type: "CLEAR_INPUT" }
   | { type: "RESET" };
 
 const initialState: WorkflowState = {
@@ -131,6 +133,13 @@ function workflowReducer(
         dontShowToolsWarningAgain: action.payload,
       };
 
+    case "CLEAR_INPUT":
+      return {
+        ...state,
+        inputData: null,
+        imageInputSource: null,
+      };
+
     case "RESET":
       return {
         ...initialState,
@@ -199,6 +208,10 @@ export function WorkflowProvider({ children }: { children: React.ReactNode }) {
         if (typeof window !== "undefined") {
           localStorage.setItem(TOOLS_WARNING_STORAGE_KEY, String(dontShow));
         }
+      },
+
+      clearInput: () => {
+        dispatch({ type: "CLEAR_INPUT" });
       },
 
       reset: () => {

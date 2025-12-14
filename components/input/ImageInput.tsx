@@ -15,6 +15,7 @@ export function ImageInput() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoReady, setVideoReady] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { actions, state } = useWorkflow();
   const inputSource = state.imageInputSource;
@@ -31,7 +32,23 @@ export function ImageInput() {
   // Update video element when stream changes
   useEffect(() => {
     if (mode === "camera" && videoRef.current && stream) {
-      videoRef.current.srcObject = stream;
+      const v = videoRef.current;
+      v.srcObject = stream;
+
+      const handleReady = () => setVideoReady(true);
+      v.addEventListener("loadeddata", handleReady);
+      v.addEventListener("playing", handleReady);
+
+      // Try to start playback; ignore promise rejections (autoplay policy)
+      const p = v.play();
+      if (p && typeof p.catch === "function") {
+        p.catch(() => {});
+      }
+
+      return () => {
+        v.removeEventListener("loadeddata", handleReady);
+        v.removeEventListener("playing", handleReady);
+      };
     }
   }, [mode, stream]);
 
@@ -61,19 +78,30 @@ export function ImageInput() {
         timestamp: new Date(),
       });
       toast.success("Image uploaded successfully");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     };
     reader.readAsDataURL(file);
   };
 
+  // Ensure the hidden file input is cleared whenever the input data is removed,
+  // so subsequent uploads always trigger the change event and show the preview.
+  useEffect(() => {
+    if (!state.inputData && fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }, [state.inputData]);
+
   const startCamera = async () => {
-    // If upload is already active, don't allow camera
     if (inputSource === "upload") {
-      toast.error("Please remove the uploaded image first");
-      return;
+      actions.clearInput();
     }
 
     try {
+      setMode("camera");
       setIsCapturing(true);
+      setVideoReady(false);
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: "environment",
@@ -82,7 +110,6 @@ export function ImageInput() {
         },
       });
       setStream(mediaStream);
-      setMode("camera");
       setIsCapturing(false);
     } catch (err) {
       setIsCapturing(false);
@@ -97,6 +124,7 @@ export function ImageInput() {
       setStream(null);
     }
     setMode("select");
+    setVideoReady(false);
   };
 
   const capturePhoto = () => {
@@ -164,29 +192,34 @@ export function ImageInput() {
         </Card>
       </div>
 
-      {/* Loading Animation - Shows while initializing camera */}
-      {isCapturing && mode !== "camera" && (
-        <div className="flex flex-col items-center justify-center gap-4 py-12">
-          <Loader2 className="w-12 h-12 animate-spin text-primary" />
-          <p className="text-lg font-medium">Initializing camera...</p>
-        </div>
-      )}
-
-      {/* Middle: Camera Live Stream - Shows when camera mode is active */}
-      {mode === "camera" && !isCapturing && (
+      {/* Middle: Camera Live Stream & Controls - Controls always visible once camera mode is entered */}
+      {mode === "camera" && (
         <>
-          <div className="relative rounded-lg overflow-hidden bg-black w-full max-w-md h-48 sm:h-64 lg:h-72 mx-auto">
+          <div className="relative rounded-lg overflow-hidden bg-black w-full max-w-md h-48 sm:h-64 lg:h-72 mx-auto min-h-[192px] sm:min-h-[256px] lg:min-h-[288px]">
+            {isCapturing && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-white bg-black/30">
+                <Loader2 className="w-12 h-12 animate-spin text-primary" />
+                <p className="text-lg font-medium mt-2">
+                  Initializing camera...
+                </p>
+              </div>
+            )}
             <video
               ref={videoRef}
               autoPlay
               playsInline
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover min-h-[192px] sm:min-h-[256px] lg:min-h-[288px]"
             />
           </div>
 
           {/* Camera Controls */}
           <div className="flex justify-center gap-4">
-            <Button onClick={capturePhoto} size="lg" className="gap-2">
+            <Button
+              onClick={capturePhoto}
+              size="lg"
+              className="gap-2"
+              disabled={isCapturing || !stream || !videoReady}
+            >
               <Camera className="w-5 h-5" />
               Capture Photo
             </Button>
@@ -200,9 +233,9 @@ export function ImageInput() {
 
       {/* Bottom: Image Preview - Shows when image is selected */}
       {state.inputData?.type === "image" && (
-        <div className="flex-1 overflow-hidden mt-4">
+        <div className="mt-4 overflow-hidden">
           <div
-            className="relative rounded-lg overflow-hidden border cursor-pointer hover:opacity-80 transition-opacity h-full"
+            className="relative rounded-lg overflow-hidden border cursor-pointer hover:opacity-80 transition-opacity w-full max-w-md h-48 sm:h-64 lg:h-72 mx-auto"
             onClick={() => setIsPopupOpen(true)}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -217,8 +250,7 @@ export function ImageInput() {
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
-                  actions.setImageInputSource(null);
-                  actions.reset();
+                  actions.clearInput();
                 }}
               >
                 <X className="w-4 h-4 mr-2" />

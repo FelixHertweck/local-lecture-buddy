@@ -59,9 +59,11 @@ export function InputContainer() {
 
       {/* Bottom: Content Area with Scrollbar */}
       {selectedType === "image" ? (
-        <div className="flex-1 overflow-hidden p-6">
-          <ImageInput />
-        </div>
+        <ScrollArea className="flex-1 min-h-0">
+          <div className="p-6 min-h-0">
+            <ImageInput />
+          </div>
+        </ScrollArea>
       ) : (
         <ScrollArea className="flex-1">
           <div className="p-6">
