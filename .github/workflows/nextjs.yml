@@ -112,4 +112,5 @@ jobs:
       contents: read
       pages: write
       id-token: write
+      deployments: write
     uses: ./.github/workflows/deploy-pages.yml
