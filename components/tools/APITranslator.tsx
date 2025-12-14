@@ -253,16 +253,6 @@ export function APITranslator() {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       <Card className="p-6 flex-1 overflow-y-auto flex flex-col">
-        {/* Translator API Availability Warning */}
-        {!translatorAvailable && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-800 text-sm font-medium">
-              Translator API is not supported in this browser. Please use Chrome
-              138 or later.
-            </p>
-          </div>
-        )}
-
         {/* Language Selection with Arrow */}
         <div className="space-y-6 flex-1">
           <div className="flex items-end gap-4">
@@ -393,46 +383,46 @@ export function APITranslator() {
           </div>
 
           {/* Translate Button */}
-          {selectedSourceLanguage && selectedTargetLanguage && (
-            <div className="flex flex-col gap-2">
-              <Button
-                onClick={handleTranslate}
-                disabled={
-                  !translatorAvailable ||
-                  isTranslating ||
-                  !state.optimizedData?.processedText
-                }
-                className="w-full"
-                size="lg"
-              >
-                {isTranslating ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Translating...
-                  </>
-                ) : (
-                  "Translate"
-                )}
-              </Button>
-
-              {/* Translation Progress Bar */}
-              {isTranslating && translationProgress > 0 && (
-                <div className="w-full">
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${translationProgress}%` }}
-                    />
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1 text-center">
-                    {isDownloadingModel && translationProgress < 100
-                      ? `Download Model: ${Math.round(translationProgress)}%`
-                      : "Translating..."}
-                  </p>
-                </div>
+          <div className="flex flex-col gap-2">
+            <Button
+              onClick={handleTranslate}
+              disabled={
+                !translatorAvailable ||
+                isTranslating ||
+                !state.optimizedData?.processedText ||
+                !selectedSourceLanguage ||
+                !selectedTargetLanguage
+              }
+              className="w-full"
+              size="lg"
+            >
+              {isTranslating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Translating...
+                </>
+              ) : (
+                "Translate"
               )}
-            </div>
-          )}
+            </Button>
+
+            {/* Translation Progress Bar */}
+            {isTranslating && translationProgress > 0 && (
+              <div className="w-full p-3 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg">
+                <div className="w-full bg-gray-300 dark:bg-gray-600 rounded-full h-2 mb-2">
+                  <div
+                    className="bg-gray-600 dark:bg-gray-400 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${translationProgress}%` }}
+                  />
+                </div>
+                <p className="text-xs text-gray-600 dark:text-gray-300 text-center font-medium">
+                  {isDownloadingModel && translationProgress < 100
+                    ? `Downloading Model: ${Math.round(translationProgress)}%`
+                    : "Translating..."}
+                </p>
+              </div>
+            )}
+          </div>
 
           {/* Translation Error */}
           {translationError && (
@@ -464,6 +454,16 @@ export function APITranslator() {
               >
                 Copy to Clipboard
               </Button>
+            </div>
+          )}
+
+          {/* Browser Support Warning */}
+          {!translatorAvailable && (
+            <div className="mt-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg">
+              <p className="text-red-800 dark:text-red-200 text-sm font-medium">
+                Translator API is not supported in this browser. Please use
+                Chrome 138 or later.
+              </p>
             </div>
           )}
         </div>

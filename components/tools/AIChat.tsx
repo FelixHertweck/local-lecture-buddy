@@ -30,7 +30,10 @@ export function AIChat() {
 
   const [availability, setAvailability] = useState<Availability>("unavailable");
   const [imageSupport, setImageSupport] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [isDownloadingModel, setIsDownloadingModel] = useState(false);
   const sessionRef = useRef<LanguageModel | null>(null);
+  const downloadStartedRef = useRef(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -43,10 +46,35 @@ export function AIChat() {
     })();
     const interval = setInterval(async () => {
       const r = await checkLanguageModelAvailability();
-      setAvailability(r.availability as Availability);
+      const newAvailability = r.availability as Availability;
+      setAvailability(newAvailability);
       setImageSupport(r.imageSupport);
+
+      // Auto-start download when status changes to downloadable
+      if (
+        newAvailability === "downloadable" &&
+        !sessionRef.current &&
+        !downloadStartedRef.current
+      ) {
+        downloadStartedRef.current = true;
+        setIsLoading(true);
+        setDownloadProgress(0);
+        setIsDownloadingModel(false);
+
+        // Add system message about download
+        const systemMessage: Message = {
+          id: `system-${Date.now()}`,
+          role: "assistant",
+          content: "Preparing AI Chat model...",
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, systemMessage]);
+
+        void initializeSession();
+      }
     }, 2000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -86,8 +114,18 @@ export function AIChat() {
         expectedInputs,
         expectedOutputs: [{ type: "text", languages: ["en"] }],
         initialPrompts: [{ role: "system", content: systemPrompt }],
+        monitor(m) {
+          m.addEventListener("downloadprogress", (e) => {
+            const progress = (e.loaded / e.total) * 100;
+            setIsDownloadingModel(true);
+            setDownloadProgress(Math.min(progress, 99));
+            console.log(`Downloaded ${Math.round(progress)}%`);
+          });
+        },
       });
 
+      setDownloadProgress(100);
+      setIsDownloadingModel(false);
       sessionRef.current = session;
       return session;
     } catch (error) {
@@ -178,6 +216,8 @@ Provide educational, supportive responses.`;
 
     setMessages((prev) => [...prev, assistantMessage]);
     setIsLoading(true);
+    setDownloadProgress(0);
+    setIsDownloadingModel(false);
 
     try {
       const session = await initializeSession();
@@ -252,6 +292,8 @@ Provide educational, supportive responses.`;
       setMessages((prev) => prev.filter((m) => m.id !== assistantMessage.id));
     } finally {
       setIsLoading(false);
+      setDownloadProgress(0);
+      setIsDownloadingModel(false);
     }
   };
 
@@ -391,29 +433,58 @@ Provide educational, supportive responses.`;
             </div>
           ))}
 
+          {/* Browser Support Warning */}
+          {availability === "unavailable" && (
+            <div className="mt-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg">
+              <p className="text-red-800 dark:text-red-200 text-sm font-medium">
+                AI Chat is currently not supported in this browser.
+                <br />
+                Currently AI Chat is only supported in Chromium-based browsers.
+                <br />
+                Try to use the latest version of Chrome.
+              </p>
+            </div>
+          )}
+
           <div ref={messagesEndRef} />
         </div>
       </div>
 
       {/* Input Area (Fixed Bottom) */}
       <div className="flex-shrink-0 p-4 border-t">
-        <div className="flex gap-2">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type your message..."
-          />
-          <Button
-            onClick={sendMessage}
-            disabled={
-              isLoading || !input.trim() || availability !== "available"
-            }
-            size="icon"
-          >
-            <Send className="w-4 h-4" />
-          </Button>
-        </div>
+        {/* Download Progress Bar - Only replaces input during actual download */}
+        {isDownloadingModel && downloadProgress > 0 ? (
+          <div className="w-full p-3 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg">
+            <div className="w-full bg-gray-300 dark:bg-gray-600 rounded-full h-2 mb-2">
+              <div
+                className="bg-gray-600 dark:bg-gray-400 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${downloadProgress}%` }}
+              />
+            </div>
+            <p className="text-xs text-gray-600 dark:text-gray-300 text-center font-medium">
+              {`Downloading Model: ${Math.round(downloadProgress)}%`}
+            </p>
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Type your message..."
+              disabled={isLoading}
+            />
+            <Button
+              onClick={sendMessage}
+              disabled={
+                isLoading || !input.trim() || availability !== "available"
+              }
+              size="icon"
+            >
+              <Send className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

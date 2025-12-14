@@ -51,6 +51,9 @@ export function AISummarizer() {
   const [length, setLength] = useState<SummaryLength>("medium");
 
   const [availability, setAvailability] = useState<Availability>("unavailable");
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [isDownloadingModel, setIsDownloadingModel] = useState(false);
+  const downloadStartedRef = useRef(false);
   const summarizerRef = useRef<{
     summarizer: Summarizer;
     type: SummaryType;
@@ -65,9 +68,31 @@ export function AISummarizer() {
     })();
     const interval = setInterval(async () => {
       const r = await checkSummarizerAvailability();
-      setAvailability(r.availability as Availability);
+      const newAvailability = r.availability as Availability;
+      setAvailability(newAvailability);
+
+      // Auto-start download when status changes to downloadable
+      if (newAvailability === "downloadable" && !downloadStartedRef.current) {
+        downloadStartedRef.current = true;
+        setIsLoading(true);
+        setDownloadProgress(0);
+        setIsDownloadingModel(false);
+
+        // Trigger download by initializing summarizer
+        try {
+          await initializeSummarizer();
+        } catch (error) {
+          console.error("Auto-download failed:", error);
+          downloadStartedRef.current = false;
+        } finally {
+          setIsLoading(false);
+          setDownloadProgress(0);
+          setIsDownloadingModel(false);
+        }
+      }
     }, 2000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const initializeSummarizer = async (): Promise<Summarizer> => {
@@ -93,8 +118,18 @@ export function AISummarizer() {
         type,
         format,
         length,
+        monitor(m) {
+          m.addEventListener("downloadprogress", (e) => {
+            const progress = (e.loaded / e.total) * 100;
+            setIsDownloadingModel(true);
+            setDownloadProgress(Math.min(progress, 99));
+            console.log(`Downloaded ${Math.round(progress)}%`);
+          });
+        },
       });
 
+      setDownloadProgress(100);
+      setIsDownloadingModel(false);
       summarizerRef.current = {
         summarizer,
         type,
@@ -122,6 +157,8 @@ export function AISummarizer() {
 
     setIsLoading(true);
     setSummary("");
+    setDownloadProgress(0);
+    setIsDownloadingModel(false);
 
     try {
       const summarizer = await initializeSummarizer();
@@ -147,6 +184,8 @@ export function AISummarizer() {
       console.error("Summarization error:", error);
     } finally {
       setIsLoading(false);
+      setDownloadProgress(0);
+      setIsDownloadingModel(false);
     }
   };
 
@@ -225,27 +264,44 @@ export function AISummarizer() {
         </div>
       </div>
 
-      {/* Action Button */}
-      <Button
-        onClick={handleSummarize}
-        disabled={
-          isLoading ||
-          availability !== "available" ||
-          !state.optimizedData?.processedText
-        }
-        className="shrink-0 mb-4"
-        title={
-          availability === "unavailable"
-            ? "Summarizer API is not available in this browser"
-            : availability === "downloadable"
-              ? "Summarizer model needs to be downloaded"
-              : !state.optimizedData?.processedText
-                ? "No text to summarize"
-                : undefined
-        }
-      >
-        {isLoading ? "Summarizing..." : "Summarize"}
-      </Button>
+      {/* Action Button and Download Progress */}
+      <div className="shrink-0 mb-4">
+        {/* Download Progress Bar - Only replaces button during actual download */}
+        {isDownloadingModel && downloadProgress > 0 ? (
+          <div className="w-full p-3 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg">
+            <div className="w-full bg-gray-300 dark:bg-gray-600 rounded-full h-2 mb-2">
+              <div
+                className="bg-gray-600 dark:bg-gray-400 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${downloadProgress}%` }}
+              />
+            </div>
+            <p className="text-xs text-gray-600 dark:text-gray-300 text-center font-medium">
+              {`Downloading Model: ${Math.round(downloadProgress)}%`}
+            </p>
+          </div>
+        ) : (
+          <Button
+            onClick={handleSummarize}
+            disabled={
+              isLoading ||
+              availability !== "available" ||
+              !state.optimizedData?.processedText
+            }
+            className="w-full"
+            title={
+              availability === "unavailable"
+                ? "Summarizer API is not available in this browser"
+                : availability === "downloadable"
+                  ? "Summarizer model needs to be downloaded"
+                  : !state.optimizedData?.processedText
+                    ? "No text to summarize"
+                    : undefined
+            }
+          >
+            {isLoading ? "Summarizing..." : "Summarize"}
+          </Button>
+        )}
+      </div>
 
       {/* Output Area (Scrollable) */}
       <div className="flex-1 min-h-0">
@@ -257,6 +313,16 @@ export function AISummarizer() {
           ) : (
             <div className="text-center text-muted-foreground py-8">
               <p>Click &apos;Summarize&apos; to begin</p>
+            </div>
+          )}
+
+          {/* Browser Support Warning */}
+          {availability === "unavailable" && (
+            <div className="mt-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg">
+              <p className="text-red-800 dark:text-red-200 text-sm font-medium">
+                Summarizer is not supported in this browser. Please use Chrome
+                128 or later.
+              </p>
             </div>
           )}
         </ScrollArea>
