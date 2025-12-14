@@ -20,7 +20,6 @@ import {
   GeoLocationLanguageInfo,
   CountryLanguageInfo,
 } from "@/lib/language-detector-helpers";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -251,10 +250,10 @@ export function APITranslator() {
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
-      <Card className="p-6 flex-1 overflow-y-auto flex flex-col">
-        {/* Language Selection with Arrow */}
-        <div className="space-y-6 flex-1">
+    <div className="h-full flex flex-col overflow-hidden bg-transparent">
+      <div className="h-full flex flex-col p-6">
+        {/* Language Selection and Controls - Fixed Top */}
+        <div className="shrink-0 space-y-6 mb-6">
           <div className="flex items-end gap-4">
             {/* Left Side - Source Language */}
             <div className="flex-1 flex flex-col items-start">
@@ -408,7 +407,7 @@ export function APITranslator() {
 
             {/* Translation Progress Bar */}
             {isTranslating && translationProgress > 0 && (
-              <div className="w-full p-3 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg">
+              <div className="w-full p-3 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg mt-4">
                 <div className="w-full bg-gray-300 dark:bg-gray-600 rounded-full h-2 mb-2">
                   <div
                     className="bg-gray-600 dark:bg-gray-400 h-2 rounded-full transition-all duration-300"
@@ -423,7 +422,10 @@ export function APITranslator() {
               </div>
             )}
           </div>
+        </div>
 
+        {/* Output Area - Scrollable */}
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-4">
           {/* Translation Error */}
           {translationError && (
             <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -450,7 +452,6 @@ export function APITranslator() {
                 }}
                 size="sm"
                 variant="outline"
-                className="mt-3"
               >
                 Copy to Clipboard
               </Button>
@@ -459,7 +460,7 @@ export function APITranslator() {
 
           {/* Browser Support Warning */}
           {!translatorAvailable && (
-            <div className="mt-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg">
+            <div className="p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg">
               <p className="text-red-800 dark:text-red-200 text-sm font-medium">
                 Translator is currently not supported in this browser.
                 <br />
@@ -471,7 +472,7 @@ export function APITranslator() {
             </div>
           )}
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

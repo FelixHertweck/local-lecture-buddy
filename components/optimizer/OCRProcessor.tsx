@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Tesseract from "tesseract.js";
 import { useWorkflow } from "@/lib/contexts/WorkflowContext";
-import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -158,38 +157,36 @@ export function OCRProcessor({ imageData }: OCRProcessorProps) {
 
       {/* Progress Indicator and Extracted Text */}
       <div className="flex-1 m-4 flex flex-col overflow-hidden">
-        <Card className="p-4 flex-1 flex flex-col overflow-hidden">
-          <div className="flex justify-between items-center flex-shrink-0">
-            <Label htmlFor="extracted-text">OCR: Extracted Text</Label>
-            <Button
-              onClick={() => {
-                setExtractedText("");
-                setRerunTrigger((prev) => prev + 1);
-              }}
-              variant="outline"
-              size="sm"
-              disabled={isProcessing}
-            >
-              Re-run OCR
-            </Button>
-          </div>
+        <div className="flex justify-between items-center flex-shrink-0">
+          <Label htmlFor="extracted-text">OCR: Extracted Text</Label>
+          <Button
+            onClick={() => {
+              setExtractedText("");
+              setRerunTrigger((prev) => prev + 1);
+            }}
+            variant="outline"
+            size="sm"
+            disabled={isProcessing}
+          >
+            Re-run OCR
+          </Button>
+        </div>
 
-          {isProcessing ? (
-            <div className="flex-1 flex flex-col items-center justify-center mt-2">
-              <Progress value={progress} className="w-full" />
-              <p className="text-center mt-4 text-sm text-muted-foreground">
-                Processing: {progress}% Complete
-              </p>
-            </div>
-          ) : (
-            <Textarea
-              id="extracted-text"
-              value={extractedText}
-              onChange={(e) => setExtractedText(e.target.value)}
-              className="flex-1 mt-2 resize-none border-0 focus:ring-0 p-3 overflow-y-auto bg-gray-50 dark:bg-transparent"
-            />
-          )}
-        </Card>
+        {isProcessing ? (
+          <div className="flex-1 flex flex-col items-center justify-center mt-2">
+            <Progress value={progress} className="w-full" />
+            <p className="text-center mt-4 text-sm text-muted-foreground">
+              Processing: {progress}% Complete
+            </p>
+          </div>
+        ) : (
+          <Textarea
+            id="extracted-text"
+            value={extractedText}
+            onChange={(e) => setExtractedText(e.target.value)}
+            className="flex-1 mt-2 resize-none border-0 focus:ring-0 p-3 overflow-y-auto "
+          />
+        )}
       </div>
     </div>
   );

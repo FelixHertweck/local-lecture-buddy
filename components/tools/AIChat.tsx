@@ -28,7 +28,7 @@ export function AIChat() {
   const [isLoading, setIsLoading] = useState(false);
   const [contextMode, setContextMode] = useState<ContextMode>("both");
 
-  const [availability, setAvailability] = useState<Availability>("unavailable");
+  const [availability, setAvailability] = useState<Availability | null>(null);
   const [imageSupport, setImageSupport] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [isDownloadingModel, setIsDownloadingModel] = useState(false);
@@ -345,20 +345,22 @@ Provide educational, supportive responses.`;
           </Select>
         </div>
 
-        <Badge
-          variant={
-            availability === "available"
-              ? "default"
-              : availability === "downloadable"
-                ? "secondary"
-                : "destructive"
-          }
-        >
-          {availability === "available" && "Ready"}
-          {availability === "downloadable" && "Preparing..."}
-          {availability === "unavailable" && "Unavailable"}
-          {!imageSupport && availability === "available" && " (Text only)"}
-        </Badge>
+        {availability && (
+          <Badge
+            variant={
+              availability === "available"
+                ? "default"
+                : availability === "downloadable"
+                  ? "secondary"
+                  : "destructive"
+            }
+          >
+            {availability === "available" && "Ready"}
+            {availability === "downloadable" && "Preparing..."}
+            {availability === "unavailable" && "Unavailable"}
+            {!imageSupport && availability === "available" && " (Text only)"}
+          </Badge>
+        )}
       </div>
 
       {/* Messages Area (Scrollable) */}
