@@ -195,11 +195,15 @@ export function AISummarizer() {
   };
 
   const handleDownload = () => {
-    const blob = new Blob([summary], { type: "text/plain" });
+    const isMarkdown = format === "markdown";
+    const mimeType = isMarkdown ? "text/markdown" : "text/plain";
+    const fileName = isMarkdown ? "summary.md" : "summary.txt";
+
+    const blob = new Blob([summary], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "summary.txt";
+    a.download = fileName;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("Downloaded");
