@@ -206,6 +206,8 @@ Provide educational, supportive responses.`;
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
 
+    actions.setToolsChanges(true);
+
     // Create assistant message placeholder immediately
     const assistantMessage: Message = {
       id: (Date.now() + 1).toString(),
@@ -283,8 +285,6 @@ Provide educational, supportive responses.`;
             : m,
         ),
       );
-      // Mark tools as having changes
-      actions.setToolsChanges(true);
     } catch (error) {
       toast.error("Failed to send message");
       console.error("Chat error:", error);

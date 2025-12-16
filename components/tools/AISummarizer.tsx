@@ -160,6 +160,8 @@ export function AISummarizer() {
     setDownloadProgress(0);
     setIsDownloadingModel(false);
 
+    actions.setToolsChanges(true);
+
     try {
       const summarizer = await initializeSummarizer();
       const stream = await summarizer.summarizeStreaming(
@@ -176,8 +178,6 @@ export function AISummarizer() {
         setSummary(result);
       }
 
-      // Mark tools as having changes
-      actions.setToolsChanges(true);
       toast.success("Summary generated");
     } catch (error) {
       toast.error("Summarization failed");
