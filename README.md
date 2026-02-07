@@ -37,12 +37,11 @@ View the [on-device internals](chrome://on-device-internals/) in your Chrome bro
 
 ### Used HTML-5 features:
 
-- **File API**: For image uploads
-- **MediaDevices API**: For camera access
-- **Canvas API**: For image processing (OCR)
-- **Web Workers**: For offloading OCR processing
-- **Fetch API**: For AI model interactions
-- **Local Storage**: For caching AI models and user preferences
+- **Media Devices API**: Real-time camera access for image capture via `getUserMedia()`
+- **File API**: Local file access and processing for the OCR engine
+- **Geolocation API**: User's geographic location for target language in translation
+- **CSS3 Media Queries**: Responsive mobile and desktop layouts optimized for all screen sizes
+- **Prefers Color Scheme**: Automatic light/dark mode detection based on system preferences
 
 ### Workflow
 
@@ -76,7 +75,7 @@ View the [on-device internals](chrome://on-device-internals/) in your Chrome bro
   - Export options: Copy to clipboard or download
 
 - **API Translator**: Multilingual support
-  - Automatic language detection
+  - Automatic language detection based on physical location and browser language
   - Support for 100+ languages
   - Locally processed
 
