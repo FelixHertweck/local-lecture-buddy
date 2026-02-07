@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { validateTextInput } from "@/lib/validation";
 
+// Text input component with validation and debounced updates
 export function TextInput() {
   const { state, actions } = useWorkflow();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);

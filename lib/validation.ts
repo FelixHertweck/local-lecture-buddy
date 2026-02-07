@@ -1,6 +1,7 @@
 import type { WorkflowStep, WorkflowState } from "@/lib/types";
 import { WorkflowStep_Array } from "@/lib/types";
 
+// Validate image file type and size
 export function validateImageFile(file: File): {
   valid: boolean;
   error?: string;
@@ -19,6 +20,7 @@ export function validateImageFile(file: File): {
   return { valid: true };
 }
 
+// Validate text input for length and content
 export function validateTextInput(text: string): {
   valid: boolean;
   error?: string;
@@ -39,6 +41,7 @@ export function validateTextInput(text: string): {
   return { valid: true };
 }
 
+// Check if navigation to target step is allowed based on current workflow state
 export function canNavigateToStep(
   targetStep: WorkflowStep,
   currentState: WorkflowState,

@@ -9,6 +9,7 @@ import { ImagePopup } from "@/components/ui/ImagePopup";
 import { validateImageFile } from "@/lib/validation";
 import { toast } from "sonner";
 
+// Component for image input with file upload and camera capture support
 export function ImageInput() {
   const [mode, setMode] = useState<"select" | "upload" | "camera">("select");
   const [stream, setStream] = useState<MediaStream | null>(null);

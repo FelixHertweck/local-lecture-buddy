@@ -1,5 +1,6 @@
 /// <reference types="@types/dom-chromium-ai" />
 
+// Check if Chrome's Language Model API is available and supports text/image input
 export async function checkLanguageModelAvailability() {
   if (typeof window === "undefined") {
     return { available: false, imageSupport: false };
@@ -48,6 +49,7 @@ export async function checkLanguageModelAvailability() {
   }
 }
 
+// Check if Chrome's Summarizer API is available
 export async function checkSummarizerAvailability() {
   if (typeof window === "undefined") {
     return { available: false, availability: "unavailable" as Availability };
@@ -70,7 +72,7 @@ export async function checkSummarizerAvailability() {
   }
 }
 
-// Language Detection API
+// Check if Chrome's Language Detector API is available
 export async function checkLanguageDetectorAvailability() {
   if (typeof window === "undefined") {
     return { available: false };
@@ -92,11 +94,13 @@ export async function checkLanguageDetectorAvailability() {
   }
 }
 
+// Detected language with confidence score
 export interface DetectedLanguage {
   detectedLanguage: string | undefined;
   confidence: number;
 }
 
+// Detect language of given text using Language Detector API
 export async function detectTextLanguage(
   text: string,
 ): Promise<DetectedLanguage[]> {

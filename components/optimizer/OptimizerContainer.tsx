@@ -4,6 +4,7 @@ import { useWorkflow } from "@/lib/contexts/WorkflowContext";
 import { OCRProcessor } from "./OCRProcessor";
 import { NoOptimization } from "./NoOptimization";
 
+// Second step container - data optimization (OCR for images, passthrough for text)
 export function OptimizerContainer() {
   const { state } = useWorkflow();
 

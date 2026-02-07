@@ -1,3 +1,4 @@
+// User input types for different media
 export interface TextInput {
   type: "text";
   content: string;
@@ -17,9 +18,10 @@ export interface AudioInput {
   timestamp: Date;
 }
 
+// Union type for all input modes
 export type InputData = TextInput | ImageInput | AudioInput;
 
-// Optimized Data
+// Processed data with metadata from optimization step
 export interface OptimizedData {
   originalInput: InputData;
   processedText: string;
@@ -30,7 +32,7 @@ export interface OptimizedData {
   };
 }
 
-// Workflow State
+// Multi-step workflow progression
 export type WorkflowStep = "input" | "optimizer" | "tools";
 
 export const WorkflowStep_Array: WorkflowStep[] = [
@@ -39,6 +41,7 @@ export const WorkflowStep_Array: WorkflowStep[] = [
   "tools",
 ];
 
+// Global workflow state management
 export interface WorkflowState {
   currentStep: WorkflowStep;
   inputData: InputData | null;
@@ -51,7 +54,7 @@ export interface WorkflowState {
   dontShowToolsWarningAgain: boolean;
 }
 
-// AI Chat Types
+// Chat message structure for AI conversations
 export interface Message {
   id: string;
   role: "user" | "assistant";
@@ -59,9 +62,10 @@ export interface Message {
   timestamp: Date;
 }
 
+// Context input types for AI chat
 export type ContextMode = "text" | "image" | "both";
 
-// Summarizer Types
+// Summary generation configuration types
 export type SummaryType = "key-points" | "tldr" | "teaser" | "headline";
 export type SummaryFormat = "markdown" | "plain-text";
 export type SummaryLength = "short" | "medium" | "long";

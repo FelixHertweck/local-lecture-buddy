@@ -1,7 +1,8 @@
-// Browser Language Detection
+// Helper functions for language detection, geolocation, and country language mapping
 import { feature } from "@rapideditor/country-coder";
 import clm from "country-locale-map";
 
+// Browser language information
 export interface BrowserLanguageInfo {
   code: string;
   name: string;
@@ -14,6 +15,7 @@ export interface CountryLanguageInfo {
   languageName: string;
 }
 
+// Get the user's browser language and language code
 export function getBrowserLanguage(): BrowserLanguageInfo {
   if (typeof window === "undefined") {
     return { code: "unknown", name: "Unknown" };
@@ -31,6 +33,7 @@ export function getBrowserLanguage(): BrowserLanguageInfo {
   };
 }
 
+// Get country and language information by country name
 export function getCountryLanguageByName(
   countryName: string,
 ): CountryLanguageInfo | null {
@@ -68,6 +71,7 @@ export function getCountryLanguageByName(
   }
 }
 
+// Get display name for a language code
 export function getLanguageName(languageCode: string): string {
   try {
     const languageNames = new Intl.DisplayNames(["en"], {
@@ -80,7 +84,7 @@ export function getLanguageName(languageCode: string): string {
   }
 }
 
-// Geolocation with Language Info
+// Geolocation data with language and country information
 export interface GeoLocationLanguageInfo {
   latitude: number;
   longitude: number;
@@ -92,6 +96,7 @@ export interface GeoLocationLanguageInfo {
   error?: string;
 }
 
+// Get user's geolocation and infer language from country
 export async function getGeolocationWithLanguage(): Promise<GeoLocationLanguageInfo> {
   if (typeof window === "undefined") {
     return {

@@ -14,6 +14,7 @@ interface OCRProcessorProps {
   imageData: string;
 }
 
+// Optical character recognition processor for extracting text from images
 export function OCRProcessor({ imageData }: OCRProcessorProps) {
   const [progress, setProgress] = useState(0);
   const [extractedText, setExtractedText] = useState("");

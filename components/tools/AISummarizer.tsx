@@ -18,6 +18,7 @@ import { checkSummarizerAvailability } from "@/lib/ai-helpers";
 import type { SummaryType, SummaryFormat, SummaryLength } from "@/lib/types";
 import { MarkdownRenderer } from "@/components/custom-ui/MarkdownRenderer";
 
+// Loading animation component
 function LoadingAnimation() {
   return (
     <div className="flex flex-col items-center justify-center py-8 gap-4">
@@ -41,6 +42,7 @@ function LoadingAnimation() {
   );
 }
 
+// AI text summarizer with customizable output formats and lengths
 export function AISummarizer() {
   const { state, actions } = useWorkflow();
   const [summary, setSummary] = useState("");

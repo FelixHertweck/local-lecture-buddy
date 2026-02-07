@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 
+// Welcome dialog providing information about the application
 export function InformationDialog() {
   const [open, setOpen] = useState(() => {
     // Check if user has previously set "Don't Show Again"

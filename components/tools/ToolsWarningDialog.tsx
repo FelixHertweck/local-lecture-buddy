@@ -22,6 +22,7 @@ interface ToolsWarningDialogProps {
   dialogId?: string;
 }
 
+// Warning dialog when leaving tools with unsaved changes
 export function ToolsWarningDialog({
   open,
   onOpenChange,

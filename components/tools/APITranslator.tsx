@@ -32,6 +32,7 @@ import {
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
+// Text translator with language detection and multi-language support
 export function APITranslator() {
   const { state, actions } = useWorkflow();
   const [detectionResults, setDetectionResults] = useState<DetectedLanguage[]>(

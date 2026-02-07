@@ -5,6 +5,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ReactNode } from "react";
 
+// Load custom fonts from Google Fonts
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -15,6 +16,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Application metadata for SEO and PWA
 export const metadata: Metadata = {
   title: "Lecture Buddy - Local AI Assistant",
   description:
@@ -43,6 +45,7 @@ export const metadata: Metadata = {
   },
 };
 
+// Root layout component that wraps the entire application
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -52,6 +55,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <title>Lecture Buddy - Local AI Assistant</title>
+        {/* Origin trial tokens for browser APIs */}
         <meta
           httpEquiv="origin-trial"
           content="Au2XGBVCng8laatAt3TPCfUo5NOw0MVS2qlnKQf5Gab2KxToJ1fIktTS7xh9A222xMnb9AvUJA4hQvNzZX2uwQwAAABdeyJvcmlnaW4iOiJodHRwOi8vbG9jYWxob3N0OjMwMDAiLCJmZWF0dXJlIjoiQUlQcm9tcHRBUElNdWx0aW1vZGFsSW5wdXQiLCJleHBpcnkiOjE3NzQzMTA0MDB9"
@@ -64,6 +68,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* Theme provider for light/dark mode support */}
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { useWorkflow } from "@/lib/contexts/WorkflowContext";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+
+// Fallback for text input - passes text through without modification
 export function NoOptimization() {
   const { actions, state } = useWorkflow();
 

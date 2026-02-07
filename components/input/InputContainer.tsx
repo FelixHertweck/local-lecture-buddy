@@ -7,6 +7,7 @@ import { useWorkflow } from "@/lib/contexts/WorkflowContext";
 import { ImageInput } from "./ImageInput";
 import { TextInput } from "./TextInput";
 
+// First step container - allows user to select between image or text input
 export function InputContainer() {
   const { state, actions } = useWorkflow();
   const selectedType = state.selectedInputType;

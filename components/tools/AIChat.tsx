@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import type { Message, ContextMode } from "@/lib/types";
 import { MarkdownRenderer } from "@/components/custom-ui/MarkdownRenderer";
 
+// AI-powered chat interface with local language model integration
 export function AIChat() {
   const { state, actions } = useWorkflow();
   const [messages, setMessages] = useState<Message[]>([]);

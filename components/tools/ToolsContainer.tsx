@@ -6,6 +6,7 @@ import { AIChat } from "./AIChat";
 import { AISummarizer } from "./AISummarizer";
 import { APITranslator } from "./APITranslator";
 
+// Third step container - bundled AI tools (chat, summarizer, translator)
 export function ToolsContainer() {
   const [activeTab, setActiveTab] = useState<
     "chat" | "summarizer" | "translator"

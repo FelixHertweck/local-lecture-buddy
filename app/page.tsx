@@ -11,6 +11,7 @@ import { OptimizerContainer } from "@/components/optimizer/OptimizerContainer";
 import { ToolsContainer } from "@/components/tools/ToolsContainer";
 import { InformationDialog } from "@/components/dialogs/InformationDialog";
 
+// Main page component wrapped with workflow context provider
 export default function Page() {
   return (
     <WorkflowProvider>
@@ -19,10 +20,11 @@ export default function Page() {
   );
 }
 
+// Main content component with multi-step workflow layout
 function Content() {
   const { state } = useWorkflow();
 
-  // Warn user when closing tab if there's unsaved data
+  // Prevent accidental tab closure when there's unsaved data
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (state.inputData || state.optimizedData) {
@@ -38,18 +40,19 @@ function Content() {
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <InformationDialog />
-      {/* Fixed Header - 64px */}
+      {/* Fixed Header */}
       <Header />
 
-      {/* Main Content Area - Flexible */}
+      {/* Main content area with step-based workflow */}
       <main className="flex-1 overflow-hidden pt-16 pb-20">
         <div className="h-full max-w-7xl mx-auto px-4">
-          {/* Stepper - Fixed within content */}
+          {/* Step indicator showing current progress */}
           <StepIndicator />
 
-          {/* Step Content - Scrollable */}
+          {/* Animated step content - switches between input, optimizer, and tools */}
           <div className="h-[calc(100%-120px)] overflow-hidden">
             <AnimatePresence mode="wait">
+              {/* Step 1: Image input and upload */}
               {state.currentStep === "input" && (
                 <motion.div
                   key="input"
@@ -63,6 +66,7 @@ function Content() {
                 </motion.div>
               )}
 
+              {/* Step 2: Image processing and optimization */}
               {state.currentStep === "optimizer" && (
                 <motion.div
                   key="optimizer"
@@ -76,6 +80,7 @@ function Content() {
                 </motion.div>
               )}
 
+              {/* Step 3: AI-powered tools (chat, summarizer, translator) */}
               {state.currentStep === "tools" && (
                 <motion.div
                   key="tools"
@@ -93,7 +98,7 @@ function Content() {
         </div>
       </main>
 
-      {/* Fixed Navigation - 80px */}
+      {/* Fixed navigation buttons for step progression */}
       <NavigationButtons />
     </div>
   );

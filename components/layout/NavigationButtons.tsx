@@ -8,6 +8,7 @@ import { ToolsWarningDialog } from "@/components/tools/ToolsWarningDialog";
 import type { WorkflowStep } from "@/lib/types";
 import { WorkflowStep_Array } from "@/lib/types";
 
+// Navigation controls for moving between workflow steps with validation
 export function NavigationButtons() {
   const { state, actions } = useWorkflow();
   const [showWarning, setShowWarning] = useState(false);

@@ -14,8 +14,10 @@ import type {
   OptimizedData,
 } from "@/lib/types";
 
+// Global state management context for multi-step workflow
 const TOOLS_WARNING_STORAGE_KEY = "dontShowToolsWarning";
 
+// Context type with state and action dispatchers
 interface WorkflowContextType {
   state: WorkflowState;
   actions: {
@@ -38,6 +40,7 @@ const WorkflowContext = createContext<WorkflowContextType | undefined>(
   undefined,
 );
 
+// Action types for workflow state reducer
 type WorkflowAction =
   | { type: "SET_INPUT"; payload: InputData }
   | { type: "SET_OPTIMIZED_DATA"; payload: OptimizedData }
@@ -52,6 +55,7 @@ type WorkflowAction =
   | { type: "CLEAR_INPUT" }
   | { type: "RESET" };
 
+// Initial workflow state
 const initialState: WorkflowState = {
   currentStep: "input",
   inputData: null,
@@ -64,6 +68,7 @@ const initialState: WorkflowState = {
   dontShowToolsWarningAgain: false,
 };
 
+// Reducer function to handle workflow state transitions
 function workflowReducer(
   state: WorkflowState,
   action: WorkflowAction,

@@ -13,6 +13,7 @@ import {
 import { ToolsWarningDialog } from "@/components/tools/ToolsWarningDialog";
 import { useWorkflow } from "@/lib/contexts/WorkflowContext";
 
+// Application header with logo, theme toggle, and reset functionality
 export function Header() {
   const { setTheme } = useTheme();
   const { actions, state } = useWorkflow();

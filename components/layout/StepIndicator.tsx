@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { ToolsWarningDialog } from "@/components/tools/ToolsWarningDialog";
 import type { WorkflowStep } from "@/lib/types";
 
+// Visual indicator of workflow progress with clickable step navigation
 const STEP_CONFIG = [
   { id: "input" as WorkflowStep, label: "Input", icon: Upload },
   {
