@@ -2,30 +2,53 @@
 
 **Live Demo:** [https://felixhertweck.github.io/local-lecture-buddy/](https://felixhertweck.github.io/local-lecture-buddy/)
 
-A comprehensive AI-powered learning assistant with OCR, text optimization, and intelligent analysis tools – built with Next.js and Chrome's Built-in AI APIs.
+A comprehensive AI-powered learning assistant with OCR, and intelligent analysis tools – built with Next.js and Chrome's Built-in AI APIs.
 
 Lecture Buddy runs **completely locally** in your browser. Your data never leaves your device. Maximum privacy meets innovative learning support.
 
-## ⚠️ Important: Built-in AI Limitations
+It is optimized for mobile devices but works on desktop as well.
 
-This application uses **Chrome's experimental Built-in AI APIs** which have important limitations:
+## Important Limitations for Built-in AI
 
-- **Chrome Desktop Only**: Features (Summarizer, and Translator) only work on Chrome 138+ (Desktop), not on mobile or other browsers
-- **Experimental**: AI Chat is an experimental APIs subject to breaking changes in future Chrome versions
-- **Origin Trial Required**: Requires active origin trial registration for production use
-- **Model Download Required**: AI models are automatically downloaded on first use (several hundred MB)
-- **Performance**: Depends on device capabilities; works best on newer hardware with sufficient RAM
-- **Fallback**: All core features (Input, OCR, Text Editing) work in any modern browser without AI APIs
+This application uses **[Chrome's experimental Built-in AI APIs](https://developer.chrome.com/docs/ai/built-in)** which have currently important limitations:
 
-**More Info:** [Chrome AI Built-in Docs](https://developer.chrome.com/docs/ai/built-in)
+**Chrome Desktop Only:**  
+All main features (chat, summarizer, translator) only work on Chrome 138+ (Desktop) and Edge (Desktop), **not on mobile or other browsers**
+
+**Experimental:**  
+AI Chat is an experimental APIs subject to breaking changes in future Chrome versions (**tested on Chrome version 144.0.7559.133** (latest build from 2026-07-02))
+
+**Origin Trial Required:**  
+Requires active origin trial registration for production use (exists for localhost and [GitHub Pages](https://felixhertweck.github.io/local-lecture-buddy/))
+
+**Model Download Required:**  
+AI models are automatically downloaded on first use (several hundred MB), which may take time and consume bandwidth
+
+**Performance:**  
+Depends on device capabilities; works best on newer hardware with sufficient RAM
+
+**More Infos about the API status:** [Chrome AI Built-in Docs](https://developer.chrome.com/docs/ai/built-in)
+
+## Debug
+
+View the [on-device internals](chrome://on-device-internals/) in your Chrome browser to see model details and debug information.
 
 ## Project Overview
+
+### Used HTML-5 features:
+
+- **File API**: For image uploads
+- **MediaDevices API**: For camera access
+- **Canvas API**: For image processing (OCR)
+- **Web Workers**: For offloading OCR processing
+- **Fetch API**: For AI model interactions
+- **Local Storage**: For caching AI models and user preferences
 
 ### Workflow
 
 1. **Input**: Upload an image, take a photo, or enter text
-2. **Optimizer**: OCR processing (for images) or text editing
-3. **Tools**: Use AI Chat, Summarizer, and Translator
+2. **Optimizer**: OCR processing (for images) or text editing, to enhance the input data
+3. **Tools**: Use AI to chat, summarize, or translate
 4. **Results**: Export results or process further
 
 ### Flexible Input
@@ -43,7 +66,7 @@ This application uses **Chrome's experimental Built-in AI APIs** which have impo
 
 - **AI Chat**: Intelligent conversation with context awareness
   - Text-only or Multimodal (Text + Image)
-  - Based on your learning materials
+  - Based on your uploaded materials
   - Streaming responses for quick interaction
   - Support for various language combinations
 
@@ -104,13 +127,6 @@ local-lecture-buddy/
 │
 ├── public/                      # Public Assets
 ```
-
-### Component Architecture
-
-- **Input Step**: Image/text upload and processing
-- **Optimizer Step**: OCR and text editing
-- **Tools Step**: AI Chat, Summarizer, Translator
-- **Results Step**: Export and result display
 
 ## Installation & Deployment
 
